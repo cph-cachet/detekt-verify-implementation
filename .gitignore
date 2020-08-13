@@ -1,3 +1,7 @@
+# Do no check in any IntelliJ .idea files.
+.idea/
+
+
 # Created by https://www.toptal.com/developers/gitignore/api/gradle,kotlin,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,kotlin,intellij
 
