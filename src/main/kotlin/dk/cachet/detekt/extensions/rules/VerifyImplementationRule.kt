@@ -9,10 +9,29 @@ import io.gitlab.arturbosch.detekt.api.Rule
  */
 abstract class VerifyImplementationRule( private val config: Config = Config.empty ): Rule( config )
 {
-    // This is retrieved directly from config rather than through the base class
-    // so that it may be used in initializer logic, i.e., to set the issue description.
     protected fun getFullyQualifiedAnnotationName( ruleId: String ): String =
-        config.subConfig( ruleId ).valueOrDefault( ANNOTATION_CLASS_CONFIG, "" )
+        prefetchValueOrDefault( ruleId, ANNOTATION_CLASS_CONFIG, "" )
+
+    /**
+     * Throw an exception in case the configuration of [VerifyImplementationRule] is not valid.
+     */
+    protected fun validateConfiguration( ruleId: String )
+    {
+        val isActive: Boolean = prefetchValueOrDefault( ruleId, Config.ACTIVE_KEY, false )
+        val isAnnotationClassSet: Boolean = getFullyQualifiedAnnotationName( ruleId ) != ""
+
+        if ( isActive && !isAnnotationClassSet )
+        {
+            error( "When $ruleId is active, $ANNOTATION_CLASS_CONFIG needs to be specified." )
+        }
+    }
+
+    /**
+     * Retrieve configuration directly from passed config rather than through base class
+     * so that it may be used in initializer logic, i.e., to set the issue description.
+     */
+    private fun <T : Any> prefetchValueOrDefault( ruleId: String, key: String, default: T ): T =
+        config.subConfig( ruleId ).valueOrDefault( key, default )
 }
 
 

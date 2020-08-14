@@ -1,6 +1,5 @@
-package dk.cachet.detekt.extensions.rules.psi
+package dk.cachet.detekt.extensions.psi
 
-import dk.cachet.detekt.extensions.psi.hasAnnotationInHierarchy
 import io.github.detekt.parser.createKotlinCoreEnvironment
 import io.github.detekt.test.utils.KtTestCompiler
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment

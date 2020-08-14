@@ -1,10 +1,12 @@
 package dk.cachet.detekt.extensions.rules
 
 import io.github.detekt.parser.createKotlinCoreEnvironment
+import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
+import java.lang.IllegalStateException
 
 
 private const val BASE: String = "Base"
@@ -14,6 +16,14 @@ private const val BASE: String = "Base"
  * Tests for [DataClass].
  */
 class DataClassSpec : Spek({
+    test( "when rule is active $ANNOTATION_CLASS_CONFIG should be set" )
+    {
+        assertThrows( IllegalStateException::class.java )
+        {
+            DataClass( TestConfig( Config.ACTIVE_KEY to true ) )
+        }
+    }
+
     test( "concrete classes should be data classes" )
     {
         val dataClass = "data class IsDataClass( val member: Int = 42 ) : $BASE()"
