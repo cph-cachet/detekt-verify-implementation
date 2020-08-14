@@ -41,9 +41,10 @@ class Immutable( config: Config = Config.empty )
 
     private val id = javaClass.simpleName
     private val annotationName: String = getFullyQualifiedAnnotationName( id )
+    init { validateConfiguration( id ) }
 
     override val issue: Issue = Issue(
-        javaClass.simpleName,
+        id,
         Severity.Defect,
         "Classes or classes extending from types with @$annotationName applied to them may not " +
         "contain mutable properties or properties of mutable types.",

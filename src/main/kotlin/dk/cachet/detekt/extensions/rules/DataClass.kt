@@ -19,6 +19,7 @@ class DataClass( config: Config = Config.empty )
 {
     private val id = javaClass.simpleName
     private val annotationName: String = getFullyQualifiedAnnotationName( id )
+    init { validateConfiguration( id ) }
 
     override val issue: Issue = Issue(
         id,
