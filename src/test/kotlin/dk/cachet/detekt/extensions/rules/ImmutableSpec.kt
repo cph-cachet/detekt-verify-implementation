@@ -13,73 +13,17 @@ private const val IMMUTABLE: String = "Immutable"
  * Tests for [Immutable].
  */
 class ImmutableSpec : Spek({
-    // TODO: Once this behavior (also used in DataClass) is extracted, move these tests to test the common abstraction.
-    group( "determine which classes need to be immutable" )
+    test( "verify sealed classes" )
     {
-        test( "use fully qualified annotation name" )
-        {
-            val fullyQualified =
-                """
-                package some.namespace
-
-                annotation class Immutable
-
-                @Immutable
-                class Mutable( var hasMutable: Int )
-                """
-
-            val rule = Immutable( "some.namespace.Immutable" )
-            val env = createKotlinCoreEnvironment() // Needed for type resolution.
-
-            val hasErrors = rule.compileAndLintWithContext( env, fullyQualified ).isNotEmpty()
-            assertFalse( hasErrors )
-        }
-
-        test( "only verify annotated classes" )
-        {
-            val notAnnotated = "class NotImmutable( var invalidMember: String )"
-            val isIgnored = isImmutable( notAnnotated )
-            assertTrue( isIgnored ) // Even though this class is mutable, the check should not happen.
-        }
-
-        test( "verify classes extending from annotated classes" )
-        {
-            val notAllImmutable =
-                """
-                @$IMMUTABLE
-                abstract class BaseClass
-                
-                class NotImmutable( var invalidMember: Int = 42 ) : BaseClass()
-                """
-            assertFalse( isImmutable( notAllImmutable ) )
-        }
-
-        test( "verify full inheritance tree" )
-        {
-            val notAllImmutable =
-                """
-                @$IMMUTABLE
-                abstract class Base
-                
-                abstract class Intermediate : Base()
-                
-                class NotImmutable( var invalidMember: Int = 42 ) : Intermediate()
-                """
-            assertFalse( isImmutable( notAllImmutable ) )
-        }
-
-        test( "verify sealed classes" )
-        {
-            val innerNotImmutable =
-                """
-                @$IMMUTABLE
-                sealed class Outer
-                {
-                    class Inner( var mutable: Int ) : Outer()
-                }
-                """
-            assertFalse( isImmutable( innerNotImmutable ) )
-        }
+        val innerNotImmutable =
+            """
+            @$IMMUTABLE
+            sealed class Outer
+            {
+                class Inner( var mutable: Int ) : Outer()
+            }
+            """
+        assertFalse( isImmutable( innerNotImmutable ) )
     }
 
     test( "verify nullable classes" )

@@ -1,5 +1,7 @@
 package dk.cachet.detekt.extensions.rules
 
+import dk.cachet.detekt.extensions.psi.TypeResolutionException
+import dk.cachet.detekt.extensions.psi.hasAnnotationInHierarchy
 import io.gitlab.arturbosch.detekt.api.CodeSmell
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.Debt
@@ -9,7 +11,6 @@ import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Rule
 import io.gitlab.arturbosch.detekt.api.Severity
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtNullableType
@@ -20,7 +21,6 @@ import org.jetbrains.kotlin.psi.KtTypeElement
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.bindingContextUtil.getReferenceTargets
-import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.source.getPsi
 
@@ -61,9 +61,18 @@ class Immutable( private val immutableAnnotation: String, config: Config = Confi
 
     override fun visitClassOrObject( classOrObject: KtClassOrObject )
     {
-        val immutableVisitor = ImmutableVisitor( bindingContext )
-        classOrObject.accept( immutableVisitor )
-        if ( immutableVisitor.shouldBeImmutable )
+        val shouldBeImmutable =
+            try { classOrObject.hasAnnotationInHierarchy( immutableAnnotation, bindingContext ) }
+            catch ( ex: TypeResolutionException )
+            {
+                val cantAnalyze = Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )
+                val message = "Cannot verify whether base type `${ex.typeName}` should be immutable since the source is unavailable."
+                report( CodeSmell( cantAnalyze, Entity.from( classOrObject ), message ) )
+
+                false
+            }
+
+        if ( shouldBeImmutable )
         {
             val implementationVisitor = ImmutableImplementationVisitor( bindingContext )
             classOrObject.accept( implementationVisitor )
@@ -79,49 +88,6 @@ class Immutable( private val immutableAnnotation: String, config: Config = Confi
         super.visitClassOrObject( classOrObject )
     }
 
-
-    /**
-     * Determines whether or not the class needs to be immutable.
-     */
-    internal inner class ImmutableVisitor( private val bindingContext: BindingContext ) : DetektVisitor()
-    {
-        var shouldBeImmutable: Boolean = false
-            private set
-
-
-        override fun visitClassOrObject( classOrObject: KtClassOrObject )
-        {
-            // Verify whether the immutable annotation is applied to the base class.
-            shouldBeImmutable = classOrObject.annotationEntries
-                .any {
-                    val type = it.typeReference?.typeElement as KtUserType
-                    val name = type.referenceExpression
-                        ?.getReferenceTargets( bindingContext )
-                        ?.filterIsInstance<ClassConstructorDescriptor>()?.firstOrNull()
-                        ?.constructedClass?.fqNameSafe?.asString()
-                    name == immutableAnnotation
-                }
-
-            // Recursively verify whether the next base class might have the immutable annotation.
-            if ( !shouldBeImmutable )
-            {
-                classOrObject.superTypeListEntries
-                    .map { it.typeAsUserType?.referenceExpression?.getResolvedCall( bindingContext )?.resultingDescriptor }
-                    .filterIsInstance<ClassConstructorDescriptor>()
-                    .mapNotNull {
-                        val superTypeConstructor = it.constructedClass.source.getPsi() as KtClassOrObject?
-                        if ( superTypeConstructor == null )
-                        {
-                            val cantAnalyze = Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )
-                            val message = "Cannot verify whether base class `${it.constructedClass.name}` should be immutable since the source is not loaded."
-                            report( CodeSmell( cantAnalyze, Entity.from( classOrObject ), message ) )
-                        }
-                        superTypeConstructor
-                    }
-                    .forEach { it.accept( this ) }
-            }
-        }
-    }
 
     /**
      * Determines for a class which needs to be immutable whether the implementation is immutable.
