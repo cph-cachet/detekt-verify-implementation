@@ -1,6 +1,7 @@
 package dk.cachet.detekt.extensions.rules
 
 import io.github.detekt.parser.createKotlinCoreEnvironment
+import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
@@ -161,7 +162,8 @@ class ImmutableSpec : Spek({
             }
             """
 
-        val rule = Immutable( "Immutable" )
+        val config = TestConfig( ANNOTATION_CLASS_CONFIG to "Immutable" )
+        val rule = Immutable( config )
         val env = createKotlinCoreEnvironment() // Needed for type resolution.
 
         val errorsReported = rule.compileAndLintWithContext( env, twoMutableMembers ).count()
@@ -182,7 +184,8 @@ private fun isImmutable( code: String ): Boolean
     val fullCode = code.plus("annotation class $IMMUTABLE" )
 
     // Evaluate rule for code.
-    val rule = Immutable( IMMUTABLE )
+    val config = TestConfig( ANNOTATION_CLASS_CONFIG to IMMUTABLE )
+    val rule = Immutable( config )
     val env = createKotlinCoreEnvironment()
     return rule.compileAndLintWithContext( env, fullCode ).isEmpty()
 }

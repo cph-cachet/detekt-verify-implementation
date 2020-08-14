@@ -8,7 +8,6 @@ import io.gitlab.arturbosch.detekt.api.Debt
 import io.gitlab.arturbosch.detekt.api.DetektVisitor
 import io.gitlab.arturbosch.detekt.api.Entity
 import io.gitlab.arturbosch.detekt.api.Issue
-import io.gitlab.arturbosch.detekt.api.Rule
 import io.gitlab.arturbosch.detekt.api.Severity
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
@@ -26,7 +25,8 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 
 
 // TODO: In case annotation class cannot be found in bindingContext, report an error.
-class Immutable( private val immutableAnnotation: String, config: Config = Config.empty ) : Rule( config )
+class Immutable( config: Config = Config.empty )
+    : VerifyImplementationRule( config )
 {
     companion object
     {
@@ -39,10 +39,13 @@ class Immutable( private val immutableAnnotation: String, config: Config = Confi
     }
 
 
+    private val id = javaClass.simpleName
+    private val annotationName: String = getFullyQualifiedAnnotationName( id )
+
     override val issue: Issue = Issue(
         javaClass.simpleName,
         Severity.Defect,
-        "Classes or classes extending from classes with an @$immutableAnnotation annotation may not " +
+        "Classes or classes extending from types with @$annotationName applied to them may not " +
         "contain mutable properties or properties of mutable types.",
         Debt.TWENTY_MINS
     )
@@ -62,7 +65,7 @@ class Immutable( private val immutableAnnotation: String, config: Config = Confi
     override fun visitClassOrObject( classOrObject: KtClassOrObject )
     {
         val shouldBeImmutable =
-            try { classOrObject.hasAnnotationInHierarchy( immutableAnnotation, bindingContext ) }
+            try { classOrObject.hasAnnotationInHierarchy( annotationName, bindingContext ) }
             catch ( ex: TypeResolutionException )
             {
                 val cantAnalyze = Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )

@@ -7,7 +7,6 @@ import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.Debt
 import io.gitlab.arturbosch.detekt.api.Entity
 import io.gitlab.arturbosch.detekt.api.Issue
-import io.gitlab.arturbosch.detekt.api.Rule
 import io.gitlab.arturbosch.detekt.api.Severity
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -15,19 +14,23 @@ import org.jetbrains.kotlin.psi.psiUtil.isAbstract
 
 
 // TODO: In case annotation class cannot be found in bindingContext, report an error.
-class DataClass( private val verifyDataClassAnnotation: String, config: Config = Config.empty ) : Rule( config )
+class DataClass( config: Config = Config.empty )
+    : VerifyImplementationRule( config )
 {
+    private val id = javaClass.simpleName
+    private val annotationName: String = getFullyQualifiedAnnotationName( id )
+
     override val issue: Issue = Issue(
-        javaClass.simpleName,
+        id,
         Severity.Defect,
-        "Classes extending from classes with an @ImplementAsDataClass annotation applied to them should be data classes.",
+        "Classes extending from types with @$annotationName applied to them should be data classes.",
         Debt.TWENTY_MINS
     )
 
     override fun visitClassOrObject( classOrObject: KtClassOrObject )
     {
         val shouldBeDataClass =
-            try { classOrObject.hasAnnotationInHierarchy( verifyDataClassAnnotation, bindingContext ) }
+            try { classOrObject.hasAnnotationInHierarchy( annotationName, bindingContext ) }
             catch ( ex: TypeResolutionException )
             {
                 val cantAnalyze = Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )

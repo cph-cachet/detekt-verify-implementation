@@ -1,6 +1,7 @@
 package dk.cachet.detekt.extensions.rules
 
 import io.github.detekt.parser.createKotlinCoreEnvironment
+import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
@@ -47,7 +48,8 @@ private fun isDataClass( code: String ): Boolean
         """ )
 
     // Evaluate rule for code.
-    val rule = DataClass( annotation )
+    val config = TestConfig( ANNOTATION_CLASS_CONFIG to annotation )
+    val rule = DataClass( config )
     val env = createKotlinCoreEnvironment() // Needed for type resolution.
     val findings = rule.compileAndLintWithContext( env, fullCode )
     return findings.isEmpty()
