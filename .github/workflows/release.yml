@@ -1,0 +1,25 @@
+name: Publish package on release
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Gradle wrapper validation
+        uses: gradle/wrapper-validation-action@v1.0.3
+
+      - name: Build and test
+        if: success()
+        run: ./gradlew build
+
+      - name: Publish
+        if: success()
+        run: ./gradlew publish
