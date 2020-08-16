@@ -22,4 +22,6 @@ jobs:
 
       - name: Publish
         if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew publish
