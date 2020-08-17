@@ -13,8 +13,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Gradle wrapper validation
-        uses: gradle/wrapper-validation-action@v1.0.3
+      - name: Set up 'publish.properties'
+        run: |
+          echo "${{ secrets.SIGNING_KEY_FILE }}" > signingKey.asc
+          echo "${{ secrets.PUBLISH_PROPERTIES }}" > publish.properties
 
       - name: Build and test
         if: success()
@@ -25,3 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew publish
+
+      - name: Release staged repo
+        if: success()
+        run: ./gradlew closeAndReleaseRepository

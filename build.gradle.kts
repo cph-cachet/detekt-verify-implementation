@@ -1,7 +1,10 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dk.cachet.detekt.extensions"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 
 val jvmTarget = "1.8"
 val detektVersion = "1.10.0"
@@ -11,11 +14,15 @@ val spek2Version = "2.0.12"
 
 plugins {
     kotlin( "jvm" ) version "1.3.72"
+    id( "org.jetbrains.dokka" ) version "1.4.0-rc"
     `maven-publish`
+    signing
+    id( "io.codearte.nexus-staging" ) version "0.21.2"
 }
 
 repositories {
     jcenter()
+    google()
 }
 
 dependencies {
@@ -31,19 +38,62 @@ dependencies {
     testImplementation( "io.gitlab.arturbosch.detekt:detekt-test:$detektVersion" )
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform {
-        includeEngines( "spek2" )
+tasks {
+    withType<Test> {
+        useJUnitPlatform {
+            includeEngines( "spek2" )
+        }
+    }
+
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = jvmTarget
+    }
+
+    dokkaJavadoc {
+        outputDirectory = "$buildDir/dokka"
     }
 }
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = jvmTarget
+val sourcesJar by tasks.creating( Jar::class )
+{
+    archiveClassifier.set( "sources" )
+    from( sourceSets.getByName( "main" ).allSource )
+}
+val javadocJar by tasks.creating( Jar::class )
+{
+    archiveClassifier.set( "javadoc" )
+    from( tasks.dokkaJavadoc )
 }
 
+// Publish configuration.
+// For signing and publishing to work, a 'publish.properties' file needs to be added to the root containing:
+// The OpenPGP credentials to sign all artifacts:
+// > signing.keyFile=<ABSOLUTE PATH TO THE ASCII-ARMORED KEY FILE>
+// > signing.password=<SECRET>
+// A username and password to upload artifacts to the Sonatype repository:
+// > repository.username=<SONATYPE USERNAME>
+// > repository.password=<SONATYPE PASSWORD>
+val publishProperties = Properties()
+val publishPropertiesFile = file( "publish.properties" )
+if ( publishPropertiesFile.exists() )
+{
+    publishProperties.load( FileInputStream( publishPropertiesFile ) )
+}
+val nexusUsername: String = publishProperties.getProperty( "repository.username", "" )
+val nexusPassword: String = publishProperties.getProperty( "repository.password", "" )
 publishing {
     repositories {
-        // Publish configuration for GitHub workflows.
+        maven {
+            name = "local"
+            url = uri( "$buildDir/repository" )
+        }
+        maven {
+            name = "sonatype"
+            url = uri( "https://oss.sonatype.org/service/local/staging/deploy/maven2" ) // Staging repo.
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
         maven {
             name = "GitHubPackages"
             url = uri( "https://maven.pkg.github.com/cph-cachet/detekt-verify-implementation" )
@@ -56,6 +106,8 @@ publishing {
     publications {
         create<MavenPublication>( "default" ) {
             from( components[ "java" ] )
+            artifact( sourcesJar )
+            artifact( javadocJar )
 
             with ( pom )
             {
@@ -85,4 +137,16 @@ publishing {
             }
         }
     }
+}
+signing {
+    val signingKeyFile = File( uri( publishProperties.getProperty( "signing.keyFile", "" ) ) )
+    val signingPassword = publishProperties.getProperty( "signing.password", "" )
+    useInMemoryPgpKeys( signingKeyFile.readText(), signingPassword )
+    sign( publishing.publications[ "default" ] )
+}
+// Add 'closeAndReleaseRepository' task to close and release uploads to Sonatype Nexus Repository after 'publish' succeeds.
+nexusStaging {
+    numberOfRetries = 30
+    username = nexusUsername
+    password = nexusPassword
 }
