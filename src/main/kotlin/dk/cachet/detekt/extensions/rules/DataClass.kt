@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.psiUtil.isAbstract
 
 
-// TODO: In case annotation class cannot be found in bindingContext, report an error.
 class DataClass( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {

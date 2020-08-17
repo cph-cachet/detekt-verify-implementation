@@ -1,7 +1,12 @@
 package dk.cachet.detekt.extensions.rules
 
+import dk.cachet.detekt.extensions.psi.TypeResolutionException
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.Rule
+import org.jetbrains.kotlin.descriptors.ClassKind
+import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 
 /**
@@ -9,6 +14,23 @@ import io.gitlab.arturbosch.detekt.api.Rule
  */
 abstract class VerifyImplementationRule( private val config: Config = Config.empty ): Rule( config )
 {
+    override fun visit( root: KtFile )
+    {
+        // Verify whether the configured annotations can be resolved.
+        val annotation = valueOrDefault( ANNOTATION_CLASS_CONFIG, "" )
+        val canFindAnnotationClass = bindingContext
+            .getSliceContents( BindingContext.CLASS )
+            .filter { it.value.kind == ClassKind.ANNOTATION_CLASS }
+            .map { it.value.fqNameSafe.toString() }
+            .contains( annotation )
+        if ( !canFindAnnotationClass )
+        {
+            error( "Can't find configured annotation class `$annotation` for $ruleId in sources." )
+        }
+
+        super.visit( root )
+    }
+
     protected fun getFullyQualifiedAnnotationName( ruleId: String ): String =
         prefetchValueOrDefault( ruleId, ANNOTATION_CLASS_CONFIG, "" )
 
