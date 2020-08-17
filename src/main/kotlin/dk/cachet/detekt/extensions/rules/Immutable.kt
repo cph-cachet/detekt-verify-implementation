@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.source.getPsi
 
 
-// TODO: In case annotation class cannot be found in bindingContext, report an error.
 class Immutable( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {

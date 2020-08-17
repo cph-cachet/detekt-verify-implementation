@@ -6,7 +6,6 @@ import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
-import java.lang.IllegalStateException
 
 
 private const val IMMUTABLE: String = "Immutable"
@@ -182,7 +181,7 @@ class ImmutableSpec : Spek({
 
     test( "report types which can't be verified" )
     {
-        val unknownType = "@$IMMUTABLE class( val unknown: UnknownType )"
+        val unknownType = "@$IMMUTABLE class SomeClass( val unknown: UnknownType )"
         assertFalse( isImmutable( unknownType ) )
     }
 })
@@ -191,7 +190,7 @@ class ImmutableSpec : Spek({
 private fun isImmutable( code: String ): Boolean
 {
     // Add immutable annotation to code.
-    val fullCode = code.plus("annotation class $IMMUTABLE" )
+    val fullCode = code.plus( "annotation class $IMMUTABLE" )
 
     // Evaluate rule for code.
     val config = TestConfig( ANNOTATION_CLASS_CONFIG to IMMUTABLE )
