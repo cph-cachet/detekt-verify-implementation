@@ -13,6 +13,9 @@ import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.psiUtil.isAbstract
 
 
+/**
+ * A rule which requires extending classes from types to which a configured annotation has been applied to be data classes.
+ */
 class DataClass( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {

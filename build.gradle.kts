@@ -4,7 +4,7 @@ import java.util.Properties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dk.cachet.detekt.extensions"
-version = "1.0.0-alpha.2"
+version = "1.0.0"
 
 val jvmTarget = "1.8"
 val detektVersion = "1.10.0"
@@ -22,7 +22,6 @@ plugins {
 
 repositories {
     jcenter()
-    google()
 }
 
 dependencies {

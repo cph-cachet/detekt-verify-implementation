@@ -24,6 +24,10 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.source.getPsi
 
 
+/**
+ * A rule which requires classes or extending classes from base types to which a configured annotation has been applied to be immutable.
+ * They may not contain mutable properties (var) or properties of mutable types (types with var properties).
+ */
 class Immutable( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {
