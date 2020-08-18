@@ -139,10 +139,12 @@ publishing {
     }
 }
 signing {
+    sign( publishing.publications[ "default" ] )
+}
+tasks.findByName( "signDefaultPublication" )?.doFirst {
     val signingKeyFile = File( uri( publishProperties.getProperty( "signing.keyFile", "" ) ) )
     val signingPassword = publishProperties.getProperty( "signing.password", "" )
-    useInMemoryPgpKeys( signingKeyFile.readText(), signingPassword )
-    sign( publishing.publications[ "default" ] )
+    signing.useInMemoryPgpKeys( signingKeyFile.readText(), signingPassword )
 }
 // Add 'closeAndReleaseRepository' task to close and release uploads to Sonatype Nexus Repository after 'publish' succeeds.
 nexusStaging {
