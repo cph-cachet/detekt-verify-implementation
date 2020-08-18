@@ -12,6 +12,8 @@ The following detekt rules are included:
 -  `Immutable`: requires classes or extending classes to be immutable;
 they may not contain mutable properties (var) or properties of mutable types (types with var properties).
 
+Due to the nature of this plugin, [a specific flavor of semantic versioning is used which makes more sense for linters](https://stylelint.io/about/semantic-versioning). Any minor update may report more errors than the previous release.
+
 
 ## Enabling the Plugin in Gradle
 
