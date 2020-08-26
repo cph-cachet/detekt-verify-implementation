@@ -1,11 +1,14 @@
 package dk.cachet.detekt.extensions.psi
 
 import io.github.detekt.parser.createKotlinCoreEnvironment
-import io.github.detekt.test.utils.KtTestCompiler
+import io.github.detekt.test.utils.compileContentForTest
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.compiler.NoScopeRecordCliBindingTrace
+import org.jetbrains.kotlin.cli.jvm.compiler.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
 
@@ -88,12 +91,22 @@ private data class CompiledClassOrObject(
 
 private fun compileAndFindClass( code: String, name: String ): CompiledClassOrObject
 {
-    val file: KtFile = KtTestCompiler.compileFromContent( code )
+    val file: KtFile = compileContentForTest( code )
     val classOrObject: KtClassOrObject =
         file.children.filterIsInstance<KtClassOrObject>().first { it.name == name }
 
     val env: KotlinCoreEnvironment = createKotlinCoreEnvironment() // Needed for type resolution.
-    val bindingContext: BindingContext = KtTestCompiler.getContextForPaths( env, listOf( file ) )
+    val bindingContext: BindingContext = getContextForPaths( env, listOf( file ) )
 
     return CompiledClassOrObject( classOrObject, bindingContext )
 }
+
+private fun getContextForPaths( environment: KotlinCoreEnvironment, paths: List<KtFile> ) =
+    TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
+        environment.project,
+        paths,
+        NoScopeRecordCliBindingTrace(),
+        environment.configuration,
+        environment::createPackagePartProvider,
+        ::FileBasedDeclarationProviderFactory
+    ).bindingContext
