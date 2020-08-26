@@ -7,17 +7,18 @@ group = "dk.cachet.detekt.extensions"
 version = "1.0.0"
 
 val jvmTarget = "1.8"
-val detektVersion = "1.10.0"
+val detektVersion = "1.12.0"
 val junit5Version = "5.6.2"
 val spek2Version = "2.0.12"
+val assertJVersion = "3.17.0"
 
 
 plugins {
-    kotlin( "jvm" ) version "1.3.72"
+    kotlin( "jvm" ) version "1.4.0"
     id( "org.jetbrains.dokka" ) version "1.4.0-rc"
     `maven-publish`
     signing
-    id( "io.codearte.nexus-staging" ) version "0.21.2"
+    id( "io.codearte.nexus-staging" ) version "0.22.0"
 }
 
 repositories {
@@ -32,6 +33,7 @@ dependencies {
     testRuntimeOnly( "org.junit.jupiter:junit-jupiter-engine:$junit5Version" )
     testImplementation( "org.spekframework.spek2:spek-dsl-jvm:$spek2Version" )
     testRuntimeOnly( "org.spekframework.spek2:spek-runner-junit5:$spek2Version" )
+    testImplementation( "org.assertj:assertj-core:$assertJVersion" )
 
     testImplementation( "io.gitlab.arturbosch.detekt:detekt-parser:$detektVersion" )
     testImplementation( "io.gitlab.arturbosch.detekt:detekt-test:$detektVersion" )
