@@ -66,7 +66,7 @@ In case the annotation class cannot be found and the rule is active an `IllegalS
 
 Additional rule-specific configuration options are described next.
 
-###Immutable
+### Immutable
 
 - `assumeImmutable` can list fully qualified class names which won't be verified and are assumed to be immutable.
 This may be useful when the plugin fails to analyze classes which you know to be immutable. Example configuration:
