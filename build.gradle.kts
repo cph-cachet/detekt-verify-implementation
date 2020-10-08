@@ -7,15 +7,15 @@ group = "dk.cachet.detekt.extensions"
 version = "1.0.0"
 
 val jvmTarget = "1.8"
-val detektVersion = "1.12.0"
-val junit5Version = "5.6.2"
-val spek2Version = "2.0.12"
-val assertJVersion = "3.17.0"
+val detektVersion = "1.14.1"
+val junit5Version = "5.7.0"
+val spek2Version = "2.0.13"
+val assertJVersion = "3.17.2"
 
 
 plugins {
-    kotlin( "jvm" ) version "1.4.0"
-    id( "org.jetbrains.dokka" ) version "1.4.0-rc"
+    kotlin( "jvm" ) version "1.4.10"
+    id( "org.jetbrains.dokka" ) version "1.4.10"
     `maven-publish`
     signing
     id( "io.codearte.nexus-staging" ) version "0.22.0"
@@ -50,8 +50,8 @@ tasks {
         kotlinOptions.jvmTarget = jvmTarget
     }
 
-    dokkaJavadoc {
-        outputDirectory = "$buildDir/dokka"
+    dokkaHtml {
+        outputDirectory.set(buildDir.resolve("dokka"))
     }
 }
 val sourcesJar by tasks.creating( Jar::class )
