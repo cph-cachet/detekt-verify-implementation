@@ -7,10 +7,9 @@ group = "dk.cachet.detekt.extensions"
 version = "1.0.0"
 
 val jvmTarget = "1.8"
-val detektVersion = "1.14.1"
+val detektVersion = "1.14.2"
 val junit5Version = "5.7.0"
-val spek2Version = "2.0.13"
-val assertJVersion = "3.17.2"
+val spek2Version = "2.0.14"
 
 
 plugins {
@@ -33,7 +32,6 @@ dependencies {
     testRuntimeOnly( "org.junit.jupiter:junit-jupiter-engine:$junit5Version" )
     testImplementation( "org.spekframework.spek2:spek-dsl-jvm:$spek2Version" )
     testRuntimeOnly( "org.spekframework.spek2:spek-runner-junit5:$spek2Version" )
-    testImplementation( "org.assertj:assertj-core:$assertJVersion" )
 
     testImplementation( "io.gitlab.arturbosch.detekt:detekt-parser:$detektVersion" )
     testImplementation( "io.gitlab.arturbosch.detekt:detekt-test:$detektVersion" )
