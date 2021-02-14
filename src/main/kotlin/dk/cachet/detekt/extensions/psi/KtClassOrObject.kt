@@ -1,11 +1,12 @@
 package dk.cachet.detekt.extensions.psi
 
 import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.bindingContextUtil.getReferenceTargets
-import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.source.getPsi
 
@@ -33,12 +34,23 @@ fun KtClassOrObject.hasAnnotationInHierarchy(
     if ( hasAnnotation ) return true
 
     // Verify whether any of the super types has the annotation applied.
-    return this.superTypeListEntries
-        .map { it.typeAsUserType?.referenceExpression?.getResolvedCall( bindingContext )?.resultingDescriptor }
+    val superTypes = this.superTypeListEntries
+        .map { it.typeAsUserType?.referenceExpression?.getReferenceTargets( bindingContext )?.singleOrNull() }
+    val anyBaseClassWithAnnotation = superTypes
         .filterIsInstance<ClassConstructorDescriptor>()
         .map {
             it.constructedClass.source.getPsi() as KtClassOrObject?
                 ?: throw TypeResolutionException( it.constructedClass.name.toString() )
         }
         .any { it.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext ) }
+    val anyInterfaceWithAnnotation = superTypes
+        .filterIsInstance<ClassDescriptor>()
+        .filter { it.kind == ClassKind.INTERFACE }
+        .map {
+            it.source.getPsi() as KtClassOrObject?
+                ?: throw TypeResolutionException( it.name.toString() )
+        }
+        .any { it.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext ) }
+
+    return anyBaseClassWithAnnotation || anyInterfaceWithAnnotation
 }

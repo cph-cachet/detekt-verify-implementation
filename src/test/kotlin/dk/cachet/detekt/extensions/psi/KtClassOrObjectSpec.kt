@@ -16,7 +16,7 @@ import org.spekframework.spek2.Spek
 class KtClassOrObjectSpec : Spek({
     group( "hasAnnotationInHierarchy" )
     {
-        test("hasAnnotationInHierarchy finds fully qualified annotation name" )
+        test("hasAnnotationInHierarchy finds fully qualified annotation name on class" )
         {
             val code =
                 """
@@ -26,6 +26,23 @@ class KtClassOrObjectSpec : Spek({
 
                 @Annotation
                 class Annotated
+                """
+            val classOrObject = compileAndFindClass( code, "Annotated" )
+
+            val hasAnnotation = classOrObject.hasAnnotationInHierarchy( "some.Annotation" )
+            assertTrue( hasAnnotation )
+        }
+
+        test("hasAnnotationInHierarchy finds fully qualified annotation name on interface" )
+        {
+            val code =
+                """
+                package some
+
+                annotation class Annotation
+
+                @Annotation
+                interface Annotated
                 """
             val classOrObject = compileAndFindClass( code, "Annotated" )
 
@@ -52,6 +69,23 @@ class KtClassOrObjectSpec : Spek({
                 abstract class BaseClass
                 
                 class ExtendingClass : BaseClass()
+                """
+            val classOrObject = compileAndFindClass( code, "ExtendingClass" )
+
+            val hasAnnotation = classOrObject.hasAnnotationInHierarchy( "Annotation" )
+            assertTrue( hasAnnotation )
+        }
+
+        test( "hasAnnotationInHierarchy finds annotation on base interface" )
+        {
+            val code =
+                """
+                annotation class Annotation
+                
+                @Annotation
+                interface Base
+                
+                class ExtendingClass : Base
                 """
             val classOrObject = compileAndFindClass( code, "ExtendingClass" )
 
