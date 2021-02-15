@@ -6,7 +6,6 @@ import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
-import kotlin.reflect.jvm.jvmName
 
 
 private const val IMMUTABLE: String = "Immutable"
