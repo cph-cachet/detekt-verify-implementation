@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.psi.KtPrimaryConstructor
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtTypeAlias
 import org.jetbrains.kotlin.psi.KtTypeElement
+import org.jetbrains.kotlin.psi.KtTypeParameter
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.bindingContextUtil.getReferenceTargets
@@ -233,6 +234,7 @@ class Immutable( config: Config = Config.empty )
                     val aliasedTypeDescriptor = getDescriptor( aliasedType )
                     aliasedTypeDescriptor?.let { getKlazz( it ) }
                 }
+                is KtTypeParameter -> null // Cannot verify generic types.
                 else -> throw UnsupportedOperationException( "VerifyImmutable does not support `getKlazz` for `$sourceElement`." )
             }
         }

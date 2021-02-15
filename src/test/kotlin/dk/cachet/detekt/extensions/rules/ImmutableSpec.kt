@@ -6,6 +6,7 @@ import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
+import kotlin.reflect.jvm.jvmName
 
 
 private const val IMMUTABLE: String = "Immutable"
@@ -77,6 +78,16 @@ class ImmutableSpec : Spek({
             @$IMMUTABLE class WithoutTypeInference { val inferred: Int = 42 }    
             """
         assertTrue( isImmutable( noTypeInference ) )
+    }
+
+    test( "do not allow generic class members" )
+    {
+        val hasGenericClassMember =
+            """
+            @$IMMUTABLE class WithGeneric<T>( val member: T )
+            """.trimIndent()
+
+        assertFalse( isImmutable( hasGenericClassMember ) )
     }
 
     test( "constructor properties should be val" )
@@ -196,5 +207,7 @@ private fun isImmutable( code: String ): Boolean
     val config = TestConfig( ANNOTATION_CLASS_CONFIG to IMMUTABLE )
     val rule = Immutable( config )
     val env = createKotlinCoreEnvironment()
-    return rule.compileAndLintWithContext( env, fullCode ).isEmpty()
+    val findings = rule.compileAndLintWithContext( env, fullCode )
+
+    return findings.isEmpty()
 }
