@@ -46,6 +46,12 @@ class DataClassSpec : Spek({
         val sealedClass = "sealed class Sealed"
         assertRulePasses( sealedClass )
     }
+
+    test( "objects don't have to be data classes" )
+    {
+        val objectClass = "object SomeObject"
+        assertRulePasses( objectClass )
+    }
 })
 
 

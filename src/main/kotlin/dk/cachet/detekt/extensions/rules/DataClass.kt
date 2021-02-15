@@ -10,11 +10,16 @@ import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Severity
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.isAbstract
+import org.jetbrains.kotlin.psi.psiUtil.isObjectLiteral
 
 
 /**
- * A rule which requires extending classes from types to which a configured annotation has been applied to be data classes.
+ * A rule which requires extending classes from types to which a configured annotation has been applied
+ * to be data classes or object declarations.
+ * This guarantees a predictable default implementation for `equals` and `hashcode` implementations, i.e.,
+ * value equality instead of referential equality.
  */
 class DataClass( config: Config = Config.empty )
     : VerifyImplementationRule( config )
@@ -26,7 +31,7 @@ class DataClass( config: Config = Config.empty )
     override val issue: Issue = Issue(
         id,
         Severity.Defect,
-        "Classes extending from types with @$annotationName applied to them should be data classes.",
+        "Classes extending from types with @$annotationName applied to them should be data classes or object declarations.",
         Debt.TWENTY_MINS
     )
 
@@ -37,13 +42,16 @@ class DataClass( config: Config = Config.empty )
             catch ( ex: TypeResolutionException )
             {
                 val cantAnalyze = Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )
-                val message = "Cannot verify whether base class `${ex.typeName}` should be a data class since the source is unavailable."
+                val message =
+                    "Cannot verify whether base class `${ex.typeName}` requires extending classes " +
+                    "to be a data classes or object declarations since the source is unavailable."
                 report( CodeSmell( cantAnalyze, Entity.from( classOrObject ), message ) )
 
                 false
             }
 
-        if ( shouldBeDataClass )
+        val isObjectDeclaration = classOrObject is KtObjectDeclaration
+        if ( shouldBeDataClass && !isObjectDeclaration )
         {
             val klass = classOrObject as? KtClass
             if ( klass != null )
@@ -51,7 +59,7 @@ class DataClass( config: Config = Config.empty )
                 val isAbstract = klass.isAbstract() || klass.isSealed()
                 if ( !isAbstract && !klass.isData() )
                 {
-                    val message = "`${classOrObject.name}` should be a data class."
+                    val message = "`${classOrObject.name}` should be a data class or object declaration."
                     report( CodeSmell( issue, Entity.from( classOrObject ), message ) )
                 }
             }

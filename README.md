@@ -8,7 +8,8 @@ annotations applied to base types**.
 
 The following detekt rules are included:
 
--  `DataClass`: requires extending classes to be [data classes](https://kotlinlang.org/docs/reference/data-classes.html).
+-  `DataClass`: requires extending classes to be [data classes](https://kotlinlang.org/docs/reference/data-classes.html) or [object declarations](https://kotlinlang.org/docs/object-declarations.html#object-declarations).
+   This guarantees a predictable default implementation for `equals` and `hashcode` implementations, i.e., value equality instead of referential equality.
 -  `Immutable`: requires classes or extending classes to be immutable;
 they may not contain mutable properties (var) or properties of mutable types (types with var properties).
 
