@@ -19,7 +19,8 @@ import org.jetbrains.kotlin.resolve.source.getPsi
  */
 fun KtClassOrObject.hasAnnotationInHierarchy(
     fullyQualifiedAnnotationName: String,
-    bindingContext: BindingContext ): Boolean
+    bindingContext: BindingContext
+): Boolean
 {
     // Verify whether the annotation is applied to this type.
     val hasAnnotation = this.annotationEntries

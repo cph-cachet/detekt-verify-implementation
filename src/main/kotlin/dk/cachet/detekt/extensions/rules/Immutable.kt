@@ -70,7 +70,7 @@ class Immutable( config: Config = Config.empty )
     override fun visitClassOrObject( classOrObject: KtClassOrObject )
     {
         val shouldBeImmutable =
-            try { classOrObject.hasAnnotationInHierarchy( annotationName, bindingContext ) }
+            try { hasAnnotationInHierarchy( annotationName, classOrObject ) }
             catch ( ex: TypeResolutionException )
             {
                 val cantAnalyze = Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )

@@ -1,9 +1,11 @@
 package dk.cachet.detekt.extensions.rules
 
 import dk.cachet.detekt.extensions.psi.TypeResolutionException
+import dk.cachet.detekt.extensions.psi.hasAnnotationInHierarchy
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.Rule
 import org.jetbrains.kotlin.descriptors.ClassKind
+import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
@@ -47,6 +49,16 @@ abstract class VerifyImplementationRule( private val config: Config = Config.emp
             error( "When $ruleId is active, $ANNOTATION_CLASS_CONFIG needs to be specified." )
         }
     }
+
+    /**
+     * Determines whether the specified [classOrObject] has the annotation with [annotationName]
+     * applied to any type in its type hierarchy.
+     *
+     * @throws TypeResolutionException when one of the super types could not be resolved
+     * in order to determine whether the annotation is applied to it.
+     */
+    protected fun hasAnnotationInHierarchy( annotationName: String, classOrObject: KtClassOrObject ): Boolean =
+        classOrObject.hasAnnotationInHierarchy( annotationName, bindingContext )
 
     /**
      * Retrieve configuration directly from passed config rather than through base class
