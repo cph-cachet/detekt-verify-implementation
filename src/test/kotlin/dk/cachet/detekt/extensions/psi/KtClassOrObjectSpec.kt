@@ -136,7 +136,7 @@ class KtClassOrObjectSpec : Spek({
             val classOrObject = compileAndFindClass( code, "Annotated" )
 
             val hasAnnotation =
-                classOrObject.hasAnnotationInHierarchy( "Annotation", listOf( "Any" ) )
+                classOrObject.hasAnnotationInHierarchy( "Annotation", listOf( "kotlin.Any" ) )
             assertFalse( hasAnnotation )
         }
     }
