@@ -19,7 +19,12 @@ import org.jetbrains.kotlin.resolve.source.getPsi
  */
 fun KtClassOrObject.hasAnnotationInHierarchy(
     fullyQualifiedAnnotationName: String,
-    bindingContext: BindingContext
+    bindingContext: BindingContext,
+    /**
+     * A list of simple type names for which it is assumed they don't have the annotation applied to them.
+     * When encountering a type with the given (unqualified) type name, no type resolution will be attempted.
+     */
+    assumeHasNoAnnotation: List<String> = emptyList()
 ): Boolean
 {
     // Verify whether the annotation is applied to this type.
@@ -39,6 +44,7 @@ fun KtClassOrObject.hasAnnotationInHierarchy(
         .map { it.typeAsUserType?.referenceExpression?.getReferenceTargets( bindingContext )?.singleOrNull() }
     val anyBaseClassWithAnnotation = superTypes
         .filterIsInstance<ClassConstructorDescriptor>()
+        .filter { !assumeHasNoAnnotation.contains( it.constructedClass.name.toString() ) }
         .map {
             it.constructedClass.source.getPsi() as KtClassOrObject?
                 ?: throw TypeResolutionException( it.constructedClass.name.toString() )
@@ -46,7 +52,10 @@ fun KtClassOrObject.hasAnnotationInHierarchy(
         .any { it.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext ) }
     val anyInterfaceWithAnnotation = superTypes
         .filterIsInstance<ClassDescriptor>()
-        .filter { it.kind == ClassKind.INTERFACE }
+        .filter {
+            it.kind == ClassKind.INTERFACE &&
+            !assumeHasNoAnnotation.contains( it.name.toString() )
+        }
         .map {
             it.source.getPsi() as KtClassOrObject?
                 ?: throw TypeResolutionException( it.name.toString() )

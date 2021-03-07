@@ -110,6 +110,35 @@ class KtClassOrObjectSpec : Spek({
             val hasAnnotation = classOrObject.hasAnnotationInHierarchy( "Annotation" )
             assertTrue( hasAnnotation )
         }
+
+        test( "hasAnnotationInHierarchy fails for types which can't be resolved" )
+        {
+            val code =
+                """
+                annotation class Annotation
+                 
+                class Annotated : Any() // Any is in stdlib and can't be resolved.
+                """
+            val classOrObject = compileAndFindClass( code, "Annotated" )
+            assertThrows( TypeResolutionException::class.java ) {
+                classOrObject.hasAnnotationInHierarchy( "Annotation" )
+            }
+        }
+
+        test( "hasAnnotationInHierarchy ignores assumeHasNoAnnotation type names" )
+        {
+            val code =
+                """
+                annotation class Annotation
+                 
+                class Annotated : Any()
+                """
+            val classOrObject = compileAndFindClass( code, "Annotated" )
+
+            val hasAnnotation =
+                classOrObject.hasAnnotationInHierarchy( "Annotation", listOf( "Any" ) )
+            assertFalse( hasAnnotation )
+        }
     }
 })
 
@@ -118,8 +147,11 @@ private data class CompiledClassOrObject(
     private val classOrObject: KtClassOrObject,
     private val bindingContext: BindingContext )
 {
-    fun hasAnnotationInHierarchy( fullyQualifiedAnnotationName: String ): Boolean =
-        classOrObject.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext )
+    fun hasAnnotationInHierarchy(
+        fullyQualifiedAnnotationName: String,
+        assumeHasNoAnnotation: List<String> = emptyList()
+    ): Boolean =
+        classOrObject.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext, assumeHasNoAnnotation )
 }
 
 
