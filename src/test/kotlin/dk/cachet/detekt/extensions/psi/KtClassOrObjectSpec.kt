@@ -139,6 +139,22 @@ class KtClassOrObjectSpec : Spek({
                 classOrObject.hasAnnotationInHierarchy( "Annotation", listOf( "kotlin.Any" ) )
             assertFalse( hasAnnotation )
         }
+
+        test( "hasAnnotationInHierarchy ignores assumeHasAnnotation type names recursively" )
+        {
+            val code =
+                """
+                annotation class Annotation
+                 
+                class Base : Any()
+                class Annotated : Base()
+                """
+            val classOrObject = compileAndFindClass( code, "Annotated" )
+
+            val hasAnnotation =
+                classOrObject.hasAnnotationInHierarchy( "Annotation", listOf( "kotlin.Any" ) )
+            assertFalse( hasAnnotation )
+        }
     }
 })
 

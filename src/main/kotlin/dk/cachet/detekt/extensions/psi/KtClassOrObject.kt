@@ -49,7 +49,7 @@ fun KtClassOrObject.hasAnnotationInHierarchy(
             it.constructedClass.source.getPsi() as KtClassOrObject?
                 ?: throw TypeResolutionException( it.constructedClass.name.toString() )
         }
-        .any { it.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext ) }
+        .any { it.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext, assumeHasNoAnnotation ) }
     val anyInterfaceWithAnnotation = superTypes
         .filterIsInstance<ClassDescriptor>()
         .filter {
@@ -60,7 +60,7 @@ fun KtClassOrObject.hasAnnotationInHierarchy(
             it.source.getPsi() as KtClassOrObject?
                 ?: throw TypeResolutionException( it.name.toString() )
         }
-        .any { it.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext ) }
+        .any { it.hasAnnotationInHierarchy( fullyQualifiedAnnotationName, bindingContext, assumeHasNoAnnotation ) }
 
     return anyBaseClassWithAnnotation || anyInterfaceWithAnnotation
 }
