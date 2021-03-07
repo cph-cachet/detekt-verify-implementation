@@ -22,7 +22,7 @@ Load the plugin through the [detekt Gradle configuration block](https://detekt.g
 
 _Groovy DSL_
 
-```
+```groovy
 detekt {
     dependencies {
         detektPlugins "dk.cachet.detekt.extensions:detekt-verify-implementation:1.1.0"
@@ -35,7 +35,7 @@ An example on how to do so:
 
 _Groovy DSL_
 
-```
+```groovy
 task detektPasses(type: io.gitlab.arturbosch.detekt.Detekt) {
     source = fileTree("$rootDir")
     {
@@ -53,7 +53,7 @@ tasks.detekt.jvmTarget = "1.8"
 By default, the rules are not activated in the [detekt configuration file](https://detekt.github.io/detekt/configurations.html).
 To enable a rule, set it to `active` and specify the fully qualified name of the `annotationClass` which determines which concrete classes to verify. For example:
 
-```
+```yaml
 verify-implementation:
   DataClass:
     active: true
@@ -63,7 +63,19 @@ verify-implementation:
     annotationClass: "dk.cachet.carp.common.Immutable"
 ```
 
-In case the annotation class cannot be found and the rule is active an `IllegalStateException` will be thrown.
+In case the annotation class cannot be found and the rule is active, an `IllegalStateException` will be thrown.
+
+Using `assumeNoAnnotations`, you can specify a list of fully qualified type names
+for which it is assumed they don't have the annotation applied to them.
+This may be useful when the plugin fails to analyze classes which are known not to carry the annotation.
+
+```yaml
+verify-implementation:
+  Immutable:
+    active: true
+    annotationClass: "dk.cachet.carp.common.Immutable"
+    assumeNoAnnotations: ['kotlin.Any']
+```
 
 Additional rule-specific configuration options are described next.
 
@@ -72,7 +84,7 @@ Additional rule-specific configuration options are described next.
 - `assumeImmutable` can list fully qualified class names which won't be verified and are assumed to be immutable.
 This may be useful when the plugin fails to analyze classes which you know to be immutable. Example configuration:
 
-```
+```yaml
 verify-implementation:
   Immutable:
     active: true
@@ -80,6 +92,6 @@ verify-implementation:
     includes: ['**/domain/**']
     assumeImmutable: [
       'dk.cachet.carp.common.DateTime',
-      'Json'
+      'kotlinx.serialization.json.Json'
     ]
 ```

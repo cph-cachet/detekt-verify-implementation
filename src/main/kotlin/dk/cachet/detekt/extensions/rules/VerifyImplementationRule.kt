@@ -57,8 +57,11 @@ abstract class VerifyImplementationRule( private val config: Config = Config.emp
      * @throws TypeResolutionException when one of the super types could not be resolved
      * in order to determine whether the annotation is applied to it.
      */
-    protected fun hasAnnotationInHierarchy( annotationName: String, classOrObject: KtClassOrObject ): Boolean =
-        classOrObject.hasAnnotationInHierarchy( annotationName, bindingContext )
+    protected fun hasAnnotationInHierarchy( annotationName: String, classOrObject: KtClassOrObject ): Boolean
+    {
+        val assumeNoAnnotations: List<String> = valueOrDefault( ASSUME_NO_ANNOTATIONS_CONFIG, emptyList() )
+        return classOrObject.hasAnnotationInHierarchy( annotationName, bindingContext, assumeNoAnnotations )
+    }
 
     /**
      * Retrieve configuration directly from passed config rather than through base class
@@ -70,3 +73,4 @@ abstract class VerifyImplementationRule( private val config: Config = Config.emp
 
 
 const val ANNOTATION_CLASS_CONFIG = "annotationClass"
+const val ASSUME_NO_ANNOTATIONS_CONFIG = "assumeNoAnnotations"
