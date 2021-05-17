@@ -7,21 +7,21 @@ group = "dk.cachet.detekt.extensions"
 version = "1.2.1"
 
 val jvmTarget = "1.8"
-val detektVersion = "1.16.0-RC3"
-val junit5Version = "5.7.1"
+val detektVersion = "1.17.0"
+val junit5Version = "5.7.2"
 val spek2Version = "2.0.15"
 
 
 plugins {
-    kotlin( "jvm" ) version "1.4.31"
-    id( "org.jetbrains.dokka" ) version "1.4.20"
+    kotlin( "jvm" ) version "1.5.0"
+    id( "org.jetbrains.dokka" ) version "1.4.32"
     `maven-publish`
     signing
-    id( "io.codearte.nexus-staging" ) version "0.22.0"
+    id( "io.codearte.nexus-staging" ) version "0.30.0"
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
