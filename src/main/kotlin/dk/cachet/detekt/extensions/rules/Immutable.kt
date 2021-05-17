@@ -1,7 +1,6 @@
 package dk.cachet.detekt.extensions.rules
 
 import dk.cachet.detekt.extensions.psi.TypeResolutionException
-import dk.cachet.detekt.extensions.psi.hasAnnotationInHierarchy
 import io.gitlab.arturbosch.detekt.api.CodeSmell
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.Debt
@@ -155,7 +154,7 @@ class Immutable( config: Config = Config.empty )
             }
 
             // Verify whether the property type is immutable.
-            val userType = property.typeReference?.typeElement as KtUserType?
+            val userType = property.typeReference?.typeElement
             if ( userType == null )
             {
                 _mutableEntities.add(

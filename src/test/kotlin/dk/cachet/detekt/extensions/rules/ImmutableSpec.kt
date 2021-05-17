@@ -36,7 +36,7 @@ class ImmutableSpec : Spek({
         assertFalse( isImmutable( innerNotImmutable ) )
     }
 
-    test( "verify nullable classes" )
+    test( "verify nullable constructor properties" )
     {
         val immutable = "@$IMMUTABLE class ImmutableClass( val immutable: Int? )"
         assertTrue( isImmutable( immutable ) )
@@ -49,6 +49,12 @@ class ImmutableSpec : Spek({
             class( val mutable: Mutable? )
             """
         assertFalse( isImmutable( mutable ) )
+    }
+
+    test( "verify nullable properties" )
+    {
+        val immutable = "@$IMMUTABLE class ImmutableClass { val defaultNull: Int? = null }"
+        assertTrue( isImmutable( immutable ) )
     }
 
     test( "verify used typealias" )

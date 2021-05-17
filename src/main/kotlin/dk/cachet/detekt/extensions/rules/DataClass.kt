@@ -1,7 +1,6 @@
 package dk.cachet.detekt.extensions.rules
 
 import dk.cachet.detekt.extensions.psi.TypeResolutionException
-import dk.cachet.detekt.extensions.psi.hasAnnotationInHierarchy
 import io.gitlab.arturbosch.detekt.api.CodeSmell
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.Debt
@@ -12,7 +11,6 @@ import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.isAbstract
-import org.jetbrains.kotlin.psi.psiUtil.isObjectLiteral
 
 
 /**
