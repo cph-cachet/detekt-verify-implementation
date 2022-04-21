@@ -4,7 +4,7 @@ import java.util.Properties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dk.cachet.detekt.extensions"
-version = "1.2.2"
+version = "1.2.3"
 
 val jvmTarget = "1.8"
 val detektVersion = "1.20.0"
