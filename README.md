@@ -30,23 +30,8 @@ detekt {
 }
 ```
 
-Since this plugin uses type and symbol solving, [a custom Gradle detekt task needs to be used](https://github.com/detekt/detekt/issues/2259) which sets `classpath`. In addition, `jvmTarget` needs to be set to 1.8.
-An example on how to do so:
-
-_Groovy DSL_
-
-```groovy
-task detektPasses(type: io.gitlab.arturbosch.detekt.Detekt) {
-    source = fileTree("$rootDir")
-    {
-        include('**/src/**')
-        exclude('**/node_modules/**')
-    }
-    config.from("$rootDir/detekt.yml")
-    classpath.setFrom(project.configurations.getByName("detekt"))
-}
-tasks.detekt.jvmTarget = "1.8"
-```
+Since this plugin uses type resolution, the rules won't run when using the basic `detekt` task.
+Use `detektMain` or a custom detekt task, [as per the detekt documentation](https://detekt.dev/type-resolution.html).
 
 ## Configuration
 

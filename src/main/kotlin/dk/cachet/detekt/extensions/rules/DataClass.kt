@@ -7,10 +7,12 @@ import io.gitlab.arturbosch.detekt.api.Debt
 import io.gitlab.arturbosch.detekt.api.Entity
 import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Severity
+import io.gitlab.arturbosch.detekt.api.internal.RequiresTypeResolution
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.isAbstract
+import org.jetbrains.kotlin.resolve.BindingContext
 
 
 /**
@@ -19,6 +21,7 @@ import org.jetbrains.kotlin.psi.psiUtil.isAbstract
  * This guarantees a predictable default implementation for `equals` and `hashcode` implementations, i.e.,
  * value equality instead of referential equality.
  */
+@RequiresTypeResolution
 class DataClass( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {
@@ -35,6 +38,9 @@ class DataClass( config: Config = Config.empty )
 
     override fun visitClassOrObject( classOrObject: KtClassOrObject )
     {
+        super.visitClassOrObject( classOrObject )
+        if ( bindingContext == BindingContext.EMPTY ) return
+
         val shouldBeDataClass =
             try { hasAnnotationInHierarchy( annotationName, classOrObject ) }
             catch ( ex: TypeResolutionException )
@@ -62,7 +68,5 @@ class DataClass( config: Config = Config.empty )
                 }
             }
         }
-
-        super.visitClassOrObject( classOrObject )
     }
 }

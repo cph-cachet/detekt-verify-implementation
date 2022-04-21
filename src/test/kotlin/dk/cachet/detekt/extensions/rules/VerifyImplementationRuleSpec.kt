@@ -7,6 +7,7 @@ import io.gitlab.arturbosch.detekt.api.Debt
 import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Severity
 import io.gitlab.arturbosch.detekt.test.TestConfig
+import io.gitlab.arturbosch.detekt.test.compileAndLint
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.junit.jupiter.api.Assertions.*
@@ -17,6 +18,15 @@ import org.spekframework.spek2.Spek
  * Tests for [VerifyImplementationRule].
  */
 class VerifyImplementationRuleSpec : Spek({
+    test( "do not run when type resolution is disabled" )
+    {
+        val config = TestConfig( ANNOTATION_CLASS_CONFIG to ImplementationRuleMock.ANNOTATION_NAME )
+        val rule = ImplementationRuleMock( config )
+
+        // Even though the annotation does not exist, the rule shouldn't run since type resolution is disabled.
+        rule.compileAndLint( "class SomeClass : Any()" )
+    }
+
     test( "fail when annotation does not exist" )
     {
         val config = TestConfig( ANNOTATION_CLASS_CONFIG to "UnknownAnnotation" )

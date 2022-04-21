@@ -18,6 +18,9 @@ abstract class VerifyImplementationRule( private val config: Config = Config.emp
 {
     override fun visit( root: KtFile )
     {
+        super.visit( root )
+        if ( bindingContext == BindingContext.EMPTY ) return
+
         // Verify whether the configured annotations can be resolved.
         val annotation = valueOrDefault( ANNOTATION_CLASS_CONFIG, "" )
         val canFindAnnotationClass = bindingContext
@@ -29,8 +32,6 @@ abstract class VerifyImplementationRule( private val config: Config = Config.emp
         {
             error( "Can't find configured annotation class `$annotation` for $ruleId in sources." )
         }
-
-        super.visit( root )
     }
 
     protected fun getFullyQualifiedAnnotationName( ruleId: String ): String =
