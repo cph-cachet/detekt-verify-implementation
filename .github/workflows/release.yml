@@ -22,12 +22,12 @@ jobs:
         if: success()
         run: ./gradlew build
 
-      - name: Publish
+      - name: Publish to GitHub packages
         if: success()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew publish
 
-      - name: Release staged repo
+      - name: Publish and release on Maven
         if: success()
-        run: ./gradlew closeAndReleaseRepository
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository

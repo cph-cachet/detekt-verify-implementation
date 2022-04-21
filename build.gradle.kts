@@ -17,7 +17,7 @@ plugins {
     id( "org.jetbrains.dokka" ) version "1.6.20"
     `maven-publish`
     signing
-    id( "io.codearte.nexus-staging" ) version "0.30.0"
+    id( "io.github.gradle-nexus.publish-plugin" ) version "1.1.0"
 }
 
 repositories {
@@ -86,14 +86,6 @@ publishing {
             url = uri( "$buildDir/repository" )
         }
         maven {
-            name = "sonatype"
-            url = uri( "https://oss.sonatype.org/service/local/staging/deploy/maven2" ) // Staging repo.
-            credentials {
-                username = nexusUsername
-                password = nexusPassword
-            }
-        }
-        maven {
             name = "GitHubPackages"
             url = uri( "https://maven.pkg.github.com/cph-cachet/detekt-verify-implementation" )
             credentials {
@@ -138,16 +130,16 @@ publishing {
     }
 }
 signing {
-    sign( publishing.publications[ "default" ] )
-}
-tasks.findByName( "signDefaultPublication" )?.doFirst {
     val signingKeyFile = File( uri( publishProperties.getProperty( "signing.keyFile", "" ) ) )
     val signingPassword = publishProperties.getProperty( "signing.password", "" )
     signing.useInMemoryPgpKeys( signingKeyFile.readText(), signingPassword )
+    sign( publishing.publications[ "default" ] )
 }
-// Add 'closeAndReleaseRepository' task to close and release uploads to Sonatype Nexus Repository after 'publish' succeeds.
-nexusStaging {
-    numberOfRetries = 30
-    username = nexusUsername
-    password = nexusPassword
+nexusPublishing {
+    repositories {
+        sonatype {
+            username.set( nexusUsername )
+            password.set( nexusPassword )
+        }
+    }
 }
