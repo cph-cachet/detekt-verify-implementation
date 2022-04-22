@@ -8,7 +8,6 @@ import io.gitlab.arturbosch.detekt.api.DetektVisitor
 import io.gitlab.arturbosch.detekt.api.Entity
 import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Severity
-import io.gitlab.arturbosch.detekt.api.internal.RequiresTypeResolution
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -29,7 +28,6 @@ import org.jetbrains.kotlin.resolve.source.getPsi
  * A rule which requires classes or extending classes from base types to which a configured annotation has been applied to be immutable.
  * They may not contain mutable properties (var) or properties of mutable types (types with var properties).
  */
-@RequiresTypeResolution
 class Immutable( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {

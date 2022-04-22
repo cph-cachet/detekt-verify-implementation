@@ -7,7 +7,6 @@ import io.gitlab.arturbosch.detekt.api.Debt
 import io.gitlab.arturbosch.detekt.api.Entity
 import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Severity
-import io.gitlab.arturbosch.detekt.api.internal.RequiresTypeResolution
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
@@ -21,7 +20,6 @@ import org.jetbrains.kotlin.resolve.BindingContext
  * This guarantees a predictable default implementation for `equals` and `hashcode` implementations, i.e.,
  * value equality instead of referential equality.
  */
-@RequiresTypeResolution
 class DataClass( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {
