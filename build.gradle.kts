@@ -4,7 +4,7 @@ import java.util.Properties
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dk.cachet.detekt.extensions"
-version = "1.2.4"
+version = "1.2.5"
 
 val jvmTarget = "1.8"
 val detektVersion = "1.22.0"
@@ -13,7 +13,7 @@ val spek2Version = "2.0.19"
 
 
 plugins {
-    kotlin( "jvm" ) version "1.7.20"
+    kotlin( "jvm" ) version "1.8.0"
     id( "org.jetbrains.dokka" ) version "1.7.20"
     `maven-publish`
     signing
