@@ -130,6 +130,9 @@ publishing {
     }
 }
 signing {
+    val isSigningSetUp = publishProperties.propertyNames().toList().isNotEmpty()
+    if (!isSigningSetUp) return@signing
+
     val signingKeyFile = File( uri( publishProperties.getProperty( "signing.keyFile", "" ) ) )
     val signingPassword = publishProperties.getProperty( "signing.password", "" )
     signing.useInMemoryPgpKeys( signingKeyFile.readText(), signingPassword )
