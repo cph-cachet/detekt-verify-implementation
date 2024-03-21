@@ -44,12 +44,15 @@ tasks {
         }
     }
 
+    withType<JavaCompile> {
+        this.targetCompatibility = jvmTarget
+    }
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = jvmTarget
     }
 
     dokkaHtml {
-        outputDirectory.set(buildDir.resolve("dokka"))
+        outputDirectory.set(layout.projectDirectory.asFile.resolve("dokka"))
     }
 }
 val sourcesJar by tasks.creating( Jar::class )
@@ -83,7 +86,7 @@ publishing {
     repositories {
         maven {
             name = "local"
-            url = uri( "$buildDir/repository" )
+            url = uri( "${layout.projectDirectory}/repository" )
         }
         maven {
             name = "GitHubPackages"
