@@ -4,6 +4,7 @@ import io.github.detekt.parser.createKotlinCoreEnvironment
 import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
 
@@ -189,7 +190,8 @@ class ImmutableSpec : Spek({
 
         val config = TestConfig( ANNOTATION_CLASS_CONFIG to "Immutable" )
         val rule = Immutable( config )
-        val env = createKotlinCoreEnvironment() // Needed for type resolution.
+        val env: KotlinCoreEnvironment = // Needed for type resolution.
+            createKotlinCoreEnvironment( printStream = System.err )
 
         val errorsReported = rule.compileAndLintWithContext( env, twoMutableMembers ).count()
         assertEquals( 2, errorsReported )
@@ -211,7 +213,7 @@ private fun isImmutable( code: String ): Boolean
     // Evaluate rule for code.
     val config = TestConfig( ANNOTATION_CLASS_CONFIG to IMMUTABLE )
     val rule = Immutable( config )
-    val env = createKotlinCoreEnvironment()
+    val env: KotlinCoreEnvironment = createKotlinCoreEnvironment( printStream = System.err )
     val findings = rule.compileAndLintWithContext( env, fullCode )
 
     return findings.isEmpty()

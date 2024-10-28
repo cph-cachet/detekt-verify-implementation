@@ -7,17 +7,17 @@ group = "dk.cachet.detekt.extensions"
 version = "1.2.6"
 
 val jvmTarget = "1.8"
-val detektVersion = "1.23.5"
-val junit5Version = "5.10.2"
+val detektVersion = "1.23.7"
+val junit5Version = "5.11.3"
 val spek2Version = "2.0.19"
 
 
 plugins {
-    kotlin( "jvm" ) version "1.9.22"
+    kotlin( "jvm" ) version "2.0.21"
     id( "org.jetbrains.dokka" ) version "1.9.20"
     `maven-publish`
     signing
-    id( "io.github.gradle-nexus.publish-plugin" ) version "1.3.0"
+    id( "io.github.gradle-nexus.publish-plugin" ) version "2.0.0"
 }
 
 repositories {

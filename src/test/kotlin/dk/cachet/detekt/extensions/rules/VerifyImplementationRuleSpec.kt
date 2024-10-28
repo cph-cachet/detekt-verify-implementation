@@ -31,7 +31,7 @@ class VerifyImplementationRuleSpec : Spek({
     {
         val config = TestConfig( ANNOTATION_CLASS_CONFIG to "UnknownAnnotation" )
         val rule = ImplementationRuleMock( config )
-        val env = createKotlinCoreEnvironment()
+        val env = createKotlinCoreEnvironment( printStream = System.err )
 
         assertThrows( IllegalStateException::class.java ) {
             rule.compileAndLintWithContext( env, "" )
@@ -42,7 +42,7 @@ class VerifyImplementationRuleSpec : Spek({
     {
         val config = TestConfig( ANNOTATION_CLASS_CONFIG to ImplementationRuleMock.ANNOTATION_NAME )
         val rule = ImplementationRuleMock( config )
-        val env = createKotlinCoreEnvironment()
+        val env = createKotlinCoreEnvironment( printStream = System.err )
 
         val code =
             """
@@ -61,7 +61,7 @@ class VerifyImplementationRuleSpec : Spek({
             ASSUME_NO_ANNOTATIONS_CONFIG to listOf( "kotlin.Any" ) // Any is in stdlib and can't be resolved.
         )
         val rule = ImplementationRuleMock( config )
-        val env = createKotlinCoreEnvironment()
+        val env = createKotlinCoreEnvironment( printStream = System.err )
 
         val code =
             """

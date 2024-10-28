@@ -5,6 +5,7 @@ import io.gitlab.arturbosch.detekt.api.Config
 import io.gitlab.arturbosch.detekt.api.Finding
 import io.gitlab.arturbosch.detekt.test.TestConfig
 import io.gitlab.arturbosch.detekt.test.compileAndLintWithContext
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
 import java.lang.IllegalStateException
@@ -91,6 +92,7 @@ private fun getFindings( code: String ): List<Finding>
 {
     val config = TestConfig( ANNOTATION_CLASS_CONFIG to ANNOTATION )
     val rule = DataClass( config )
-    val env = createKotlinCoreEnvironment() // Needed for type resolution.
+    val env: KotlinCoreEnvironment = // Needed for type resolution.
+        createKotlinCoreEnvironment( printStream = System.err )
     return rule.compileAndLintWithContext( env, code )
 }

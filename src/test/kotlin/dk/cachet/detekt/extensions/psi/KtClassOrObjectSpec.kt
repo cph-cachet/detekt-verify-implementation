@@ -177,7 +177,8 @@ private fun compileAndFindClass( code: String, name: String ): CompiledClassOrOb
     val classOrObject: KtClassOrObject =
         file.children.filterIsInstance<KtClassOrObject>().first { it.name == name }
 
-    val env: KotlinCoreEnvironment = createKotlinCoreEnvironment() // Needed for type resolution.
+    val env: KotlinCoreEnvironment = // Needed for type resolution.
+        createKotlinCoreEnvironment( printStream = System.err )
     val bindingContext: BindingContext = getContextForPaths( env, listOf( file ) )
 
     return CompiledClassOrObject( classOrObject, bindingContext )
@@ -187,7 +188,7 @@ private fun getContextForPaths( environment: KotlinCoreEnvironment, paths: List<
     TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
         environment.project,
         paths,
-        NoScopeRecordCliBindingTrace(),
+        NoScopeRecordCliBindingTrace( environment.project ),
         environment.configuration,
         environment::createPackagePartProvider,
         ::FileBasedDeclarationProviderFactory
