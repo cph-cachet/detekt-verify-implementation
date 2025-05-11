@@ -8,6 +8,7 @@ import io.gitlab.arturbosch.detekt.api.DetektVisitor
 import io.gitlab.arturbosch.detekt.api.Entity
 import io.gitlab.arturbosch.detekt.api.Issue
 import io.gitlab.arturbosch.detekt.api.Severity
+import io.gitlab.arturbosch.detekt.api.internal.RequiresTypeResolution
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -25,9 +26,11 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 
 
 /**
- * A rule which requires classes or extending classes from base types to which a configured annotation has been applied to be immutable.
+ * A rule which requires classes or extending classes from base types to which a configured annotation has been applied
+ * to be immutable.
  * They may not contain mutable properties (var) or properties of mutable types (types with var properties).
  */
+@RequiresTypeResolution
 class Immutable( config: Config = Config.empty )
     : VerifyImplementationRule( config )
 {
@@ -75,8 +78,11 @@ class Immutable( config: Config = Config.empty )
             try { hasAnnotationInHierarchy( annotationName, classOrObject ) }
             catch ( ex: TypeResolutionException )
             {
-                val cantAnalyze = Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )
-                val message = "Cannot verify whether base type `${ex.typeName}` should be immutable since the source is unavailable."
+                val cantAnalyze =
+                    Issue( issue.id, Severity.Warning, issue.description, Debt.FIVE_MINS )
+                val typeName = ex.typeName
+                val message =
+                    "Cannot verify whether base type `$typeName` should be immutable since the source is unavailable."
                 report( CodeSmell( cantAnalyze, Entity.from( classOrObject ), message ) )
 
                 false
@@ -159,8 +165,8 @@ class Immutable( config: Config = Config.empty )
             if ( userType == null )
             {
                 _mutableEntities.add(
-                    Entity.from( property ) to
-                    "Could not verify whether property type is immutable since type inference is used. Specify type explicitly." )
+                    Entity.from( property ) to "Could not verify whether property type is immutable " +
+                        "since type inference is used. Specify type explicitly." )
             }
             else verifyType( userType, property )
 
@@ -209,22 +215,20 @@ class Immutable( config: Config = Config.empty )
             }
         }
 
-        private fun getDescriptor( type: KtTypeElement ): DeclarationDescriptorWithSource?
-        {
-            return when ( type )
+        private fun getDescriptor( type: KtTypeElement ): DeclarationDescriptorWithSource? =
+            when ( type )
             {
                 is KtUserType ->
                     type.referenceExpression
                     // TODO: What if there are more reference targets?
                     ?.getReferenceTargets( bindingContext )?.firstOrNull() as DeclarationDescriptorWithSource?
                 is KtNullableType -> getDescriptor( type.innerType!! )
-                else -> throw UnsupportedOperationException( "VerifyImmutable does not support `getDescriptor` for `$type`." )
+                else -> throw UnsupportedOperationException(
+                    "VerifyImmutable does not support `getDescriptor` for `$type`." )
             }
-        }
 
-        private fun getKlazz( descriptor: DeclarationDescriptorWithSource ): KtClassOrObject?
-        {
-            return when ( val sourceElement = descriptor.source.getPsi() )
+        private fun getKlazz( descriptor: DeclarationDescriptorWithSource ): KtClassOrObject? =
+            when ( val sourceElement = descriptor.source.getPsi() )
             {
                 null -> null
                 is KtClassOrObject -> sourceElement
@@ -235,8 +239,8 @@ class Immutable( config: Config = Config.empty )
                     aliasedTypeDescriptor?.let { getKlazz( it ) }
                 }
                 is KtTypeParameter -> null // Cannot verify generic types.
-                else -> throw UnsupportedOperationException( "VerifyImmutable does not support `getKlazz` for `$sourceElement`." )
+                else -> throw UnsupportedOperationException(
+                    "VerifyImmutable does not support `getKlazz` for `$sourceElement`." )
             }
-        }
     }
 }

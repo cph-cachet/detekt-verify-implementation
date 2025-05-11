@@ -128,10 +128,12 @@ class ImmutableSpec : Spek({
 
     test( "properties should be val" )
     {
-        val valProperty = "@$IMMUTABLE class ValidImmutable( val validMember: Int = 42 ) { val validProperty: Int = 42 }"
+        val valProperty =
+            "@$IMMUTABLE class ValidImmutable( val validMember: Int = 42 ) { val validProperty: Int = 42 }"
         assertTrue( isImmutable( valProperty ) )
 
-        val varProperty = "@$IMMUTABLE class NotImmutable( val validMember: Int = 42 ) { var invalidProperty: Int = 42 }"
+        val varProperty =
+            "@$IMMUTABLE class NotImmutable( val validMember: Int = 42 ) { var invalidProperty: Int = 42 }"
         assertFalse( isImmutable( varProperty ) )
     }
 
