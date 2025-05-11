@@ -18,6 +18,7 @@ val spek2Version = "2.0.19"
 plugins {
     kotlin( "jvm" ) version "2.1.20"
     id( "org.jetbrains.dokka" ) version "2.0.0"
+    id( "io.gitlab.arturbosch.detekt" ) version "1.23.8"
     `maven-publish`
     signing
     id( "io.github.gradle-nexus.publish-plugin" ) version "2.0.0"
@@ -38,6 +39,13 @@ dependencies {
 
     testImplementation( "io.gitlab.arturbosch.detekt:detekt-parser:$detektVersion" )
     testImplementation( "io.gitlab.arturbosch.detekt:detekt-test:$detektVersion" )
+
+    detektPlugins( "io.gitlab.arturbosch.detekt:detekt-rules-ruleauthors:$detektVersion" )
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom( "$projectDir/detekt.yml" )
 }
 
 tasks {

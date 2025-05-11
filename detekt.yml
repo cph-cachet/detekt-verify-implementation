@@ -1,0 +1,5 @@
+style:
+  ForbiddenComment:
+    active: false
+  WildcardImport:
+    active: false
