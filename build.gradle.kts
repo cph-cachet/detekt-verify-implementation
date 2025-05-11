@@ -1,20 +1,23 @@
+import org.jetbrains.dokka.gradle.internal.InternalDokkaGradlePluginApi
+import org.jetbrains.dokka.gradle.tasks.DokkaGenerateTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.File
 import java.io.FileInputStream
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 group = "dk.cachet.detekt.extensions"
 version = "1.2.6"
 
 val jvmTarget = "1.8"
-val detektVersion = "1.23.7"
-val junit5Version = "5.11.3"
+val detektVersion = "1.23.8"
+val junit5Version = "5.12.2"
 val spek2Version = "2.0.19"
 
 
 plugins {
-    kotlin( "jvm" ) version "2.0.21"
-    id( "org.jetbrains.dokka" ) version "1.9.20"
+    kotlin( "jvm" ) version "2.1.20"
+    id( "org.jetbrains.dokka" ) version "2.0.0"
     `maven-publish`
     signing
     id( "io.github.gradle-nexus.publish-plugin" ) version "2.0.0"
@@ -43,27 +46,32 @@ tasks {
             includeEngines( "spek2" )
         }
     }
-
     withType<JavaCompile> {
         this.targetCompatibility = jvmTarget
     }
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = jvmTarget
-    }
-
-    dokkaHtml {
-        outputDirectory.set(layout.projectDirectory.asFile.resolve("dokka"))
+    withType<KotlinJvmCompile> {
+        compilerOptions.jvmTarget.set( JvmTarget.fromTarget( jvmTarget ) )
     }
 }
-val sourcesJar by tasks.creating( Jar::class )
+dokka {
+    dokkaPublications.html {
+        outputDirectory.set( layout.buildDirectory.dir( "dokka" ) )
+    }
+}
+tasks.withType<DokkaGenerateTask>().configureEach {
+    // HACK: Dokka 2.0.0 exposes this debug file by default (https://github.com/Kotlin/dokka/issues/3958)
+    @OptIn( InternalDokkaGradlePluginApi::class )
+    dokkaConfigurationJsonFile.convention( null as RegularFile? )
+}
+val sourcesJar by tasks.registering( Jar::class )
 {
     archiveClassifier.set( "sources" )
     from( sourceSets.getByName( "main" ).allSource )
 }
-val javadocJar by tasks.creating( Jar::class )
+val javadocJar by tasks.registering( Jar::class )
 {
     archiveClassifier.set( "javadoc" )
-    from( tasks.dokkaJavadoc )
+    from( tasks.dokkaGeneratePublicationHtml )
 }
 
 // Publish configuration.
