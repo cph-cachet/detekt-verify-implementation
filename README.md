@@ -25,7 +25,7 @@ _Groovy DSL_
 ```groovy
 detekt {
     dependencies {
-        detektPlugins "dk.cachet.detekt.extensions:detekt-verify-implementation:1.2.7"
+        detektPlugins "dk.cachet.detekt.extensions:detekt-verify-implementation:1.2.8"
     }
 }
 ```
