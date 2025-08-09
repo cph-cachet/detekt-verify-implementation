@@ -16,7 +16,7 @@ val spek2Version = "2.0.19"
 
 
 plugins {
-    kotlin( "jvm" ) version "2.1.20"
+    kotlin( "jvm" ) version "2.2.0"
     id( "org.jetbrains.dokka" ) version "2.0.0"
     id( "io.gitlab.arturbosch.detekt" ) version "1.23.8"
     `maven-publish`
